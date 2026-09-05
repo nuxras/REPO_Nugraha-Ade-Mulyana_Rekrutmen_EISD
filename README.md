@@ -1,59 +1,216 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SiapLapor
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Platform pelaporan dan pemantauan infrastruktur kota berbasis prioritas. Warga melaporkan masalah infrastruktur (jalan rusak, sampah menumpuk, lampu jalan mati, dll) lengkap dengan foto dan titik lokasi di peta, sistem otomatis menghitung skor prioritas laporan, lalu Petugas memproses laporan berdasarkan urutan prioritas tersebut.
 
-## About Laravel
+Dibuat untuk study case seleksi Asisten Praktikum & Asisten Lab EISD (Enterprise Intelligent and Systems Development), Program Studi S1 Sistem Informasi, Telkom University.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+![Landing page SiapLapor](docs/screenshots/landing.png)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Latar Belakang
 
-## Learning Laravel
+Isu infrastruktur kota berkaitan erat dengan SDG 11, *Sustainable Cities and Communities*. Warga sering menemukan masalah infrastruktur di sekitarnya, tapi tidak ada kanal pelaporan terstruktur yang menampilkan status penanganan secara transparan, apalagi yang bisa membantu petugas menentukan laporan mana yang harus ditangani lebih dulu. SiapLapor mencoba menjawab ini dengan alur yang jelas: Warga lapor, sistem menghitung prioritas, Petugas menindaklanjuti sesuai urutan prioritas, dan Warga bisa memantau progresnya. Jadi penanganan masalah kota lebih terarah, tidak sekadar "siapa cepat dia dapat".
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Fitur Utama
 
-## Laravel Sponsors
+### Warga
+- Registrasi akun & login
+- Buat laporan baru: judul, deskripsi, pilih titik lokasi di peta interaktif (koordinat otomatis terisi), pilih satu atau lebih kategori masalah, upload foto bukti
+- Lihat riwayat semua laporan yang pernah dibuat beserta statusnya
+- Lihat detail laporan lengkap dengan timeline riwayat status dari Petugas
+- Edit profil (nama, telepon, alamat, password)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Petugas
+- Login khusus akun Petugas
+- Dashboard berisi semua laporan warga, diurutkan dari skor prioritas tertinggi
+- Filter laporan berdasarkan kategori dan/atau status
+- Lihat detail satu laporan
+- Perbarui status laporan (Diterima → Diproses → Selesai) dengan catatan penanganan yang tersimpan sebagai riwayat, bukan menimpa status sebelumnya
 
-### Premium Partners
+### Admin
+- Login khusus akun Admin
+- Dashboard statistik: total laporan, jumlah per status, jumlah per kategori (chart)
+- Kelola Kategori masalah: CRUD penuh (nama + bobot prioritas)
+- Kelola Akun Pengguna: CRUD penuh untuk akun Warga dan Petugas
+- Lihat seluruh laporan yang masuk ke sistem (read-only, tanpa batasan kepemilikan)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Akses tiap halaman dibatasi sesuai role lewat middleware. Petugas misalnya tidak bisa mengakses halaman Kelola Kategori milik Admin.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Tech Stack
 
-## Code of Conduct
+| Kategori | Teknologi |
+|---|---|
+| Backend | Laravel 12 (PHP ^8.2) |
+| Autentikasi | Laravel Breeze |
+| Frontend | Blade Templates, Tailwind CSS 3, Alpine.js |
+| Build tool | Vite |
+| Database | SQLite |
+| Peta interaktif | Leaflet.js + OpenStreetMap (gratis, tanpa API key), Nominatim untuk reverse geocoding |
+| Chart | Chart.js |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Seluruh fitur CRUD (Controller, View, Route) ditulis manual mengikuti arsitektur MVC standar Laravel. Tidak ada package admin-panel-builder seperti Filament, Nova, atau Backpack yang dipakai.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Struktur Database
 
-## License
+| Tabel | Keterangan |
+|---|---|
+| `users` | Akun dengan kolom `role` (`warga` / `petugas` / `admin`), single table inheritance |
+| `categories` | Kategori masalah infrastruktur beserta `priority_weight` (bobot prioritas) |
+| `reports` | Laporan warga: judul, deskripsi, foto, alamat, lat/long, status, `priority_score` |
+| `report_category` | Tabel pivot relasi many-to-many antara `reports` dan `categories` |
+| `status_histories` | Riwayat setiap perubahan status laporan beserta catatan petugas |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Relasi utama:
+- `User` hasMany `Report` (sebagai pelapor), 1-to-Many
+- `User` hasMany `StatusHistory` (sebagai petugas yang update), 1-to-Many
+- `Report` belongsTo `User`
+- `Report` belongsToMany `Category` melalui `report_category`, Many-to-Many
+- `Report` hasMany `StatusHistory` (cascade delete)
+- `StatusHistory` belongsTo `Report` dan belongsTo `User`
+
+---
+
+## Cara Menjalankan Project dari Nol
+
+Langkah di bawah sudah diuji langsung: clone repo ini ke folder kosong lalu dijalankan satu per satu, bukan cuma asumsi dari dokumentasi Laravel.
+
+### Prasyarat
+
+- PHP ≥ 8.2 (diuji dengan PHP 8.2.12) beserta ekstensi standar (`pdo_sqlite`, `mbstring`, `openssl`, `gd`)
+- Composer 2.x
+- Node.js ≥ 18 dan npm (diuji dengan Node 24, npm 11)
+- Git
+
+### Langkah Instalasi
+
+```bash
+# 1. Clone repository
+git clone https://github.com/nuxras/REPO_Nugraha-Ade-Mulyana_Rekrutmen_EISD.git
+cd REPO_Nugraha-Ade-Mulyana_Rekrutmen_EISD
+
+# 2. Install dependency PHP
+composer install
+
+# 3. Salin file environment & generate application key
+cp .env.example .env
+php artisan key:generate
+
+# 4. Buat file database SQLite kosong
+#    Windows PowerShell:  New-Item database/database.sqlite
+#    Git Bash / macOS / Linux:
+touch database/database.sqlite
+
+# 5. Jalankan migration untuk membuat seluruh tabel
+php artisan migrate
+
+# 6. Isi database dengan data dummy (akun demo, kategori, contoh laporan)
+php artisan db:seed
+
+# 7. Buat symbolic link agar foto laporan bisa diakses dari browser
+php artisan storage:link
+
+# 8. Install dependency frontend & build asset CSS/JS
+npm install
+npm run build
+
+# 9. Jalankan server development
+php artisan serve
+```
+
+Setelah langkah terakhir, buka http://127.0.0.1:8000 di browser.
+
+Catatan: `.env.example` sudah diset memakai `DB_CONNECTION=sqlite`, jadi tidak perlu setup MySQL apa pun. Untuk mode pengembangan aktif (auto-reload saat mengubah file Blade/CSS), jalankan `npm run dev` di terminal terpisah alih-alih `npm run build`.
+
+---
+
+## Akun Demo untuk Testing
+
+Semua akun di bawah pakai password yang sama: `password`
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@siaplapor.test` | `password` |
+| Petugas | `petugas1@siaplapor.test` | `password` |
+| Petugas | `petugas2@siaplapor.test` | `password` |
+| Warga | `warga1@siaplapor.test` | `password` |
+| Warga | `warga2@siaplapor.test` | `password` |
+| Warga | `warga3@siaplapor.test` | `password` |
+
+Setelah login, sistem otomatis mengarahkan ke dashboard sesuai role. Database demo sudah berisi 5 kategori masalah dan 10 contoh laporan dengan variasi status dan lokasi (area Bandung) untuk keperluan pengujian.
+
+---
+
+## Fitur Unggulan
+
+### Peta Interaktif (Leaflet.js)
+
+Saat Warga membuat laporan baru, tersedia peta interaktif penuh (bukan sekadar tautan ke Google Maps) pakai Leaflet.js + OpenStreetMap, gratis dan tanpa perlu API key. Warga tinggal klik titik di peta: marker langsung muncul, koordinat latitude/longitude otomatis terisi ke form, dan alamat ikut terisi lewat reverse geocoding (Nominatim API) berdasarkan koordinat tersebut. Tetap bisa diedit manual kalau kurang tepat.
+
+![Peta interaktif saat membuat laporan](docs/screenshots/peta-interaktif.png)
+
+Di halaman detail laporan ada mini-map dengan marker lokasi, plus timeline vertikal riwayat status supaya Warga bisa memantau progres penanganan secara visual.
+
+![Timeline riwayat status laporan](docs/screenshots/timeline-status.png)
+
+### Sistem Skor Prioritas Otomatis
+
+Setiap laporan baru otomatis dihitung skor prioritasnya dengan formula:
+
+```
+priority_score = SUM(bobot semua kategori yang dipilih)
+               + (jumlah laporan lain yang serupa) x 10
+```
+
+Sebuah laporan dianggap "serupa" kalau memenuhi dua syarat sekaligus: berbagi minimal satu kategori yang sama, dan berlokasi dalam radius 500 meter dari laporan yang baru dibuat (dihitung pakai formula Haversine untuk jarak antar dua koordinat GPS).
+
+Contohnya, laporan "Jalan Rusak" (bobot 30) yang lokasinya berdekatan dengan 2 laporan "Jalan Rusak" lain akan mendapat skor `30 + (2 x 10) = 50`. Makin banyak laporan serupa menumpuk di satu area, makin tinggi urutan prioritasnya di dashboard Petugas.
+
+Skor ini ditampilkan sebagai badge berwarna: merah untuk skor ≥ 70 ("Tinggi"), kuning untuk 40-69 ("Sedang"), hijau untuk di bawah 40 ("Rendah"). Petugas jadi tidak perlu menyortir manual, laporan paling mendesak otomatis muncul paling atas.
+
+![Dashboard Petugas terurut skor prioritas](docs/screenshots/petugas-dashboard.png)
+
+### Dashboard Admin
+
+Statistik ringkas plus chart jumlah laporan per kategori dan distribusi status, untuk memantau kondisi sistem secara keseluruhan.
+
+![Dashboard Admin dengan chart](docs/screenshots/admin-dashboard.png)
+
+---
+
+## Menjalankan Test
+
+```bash
+php artisan test
+```
+
+---
+
+## Struktur Folder Singkat
+
+```
+app/
+├── Http/Controllers/
+│   ├── Admin/          # DashboardController, CategoryController, UserController, ReportController
+│   ├── Petugas/        # DashboardController, ReportController
+│   └── Warga/          # DashboardController, ReportController, ProfileController
+├── Models/              # User, Category, Report, StatusHistory
+└── Http/Middleware/     # RoleMiddleware (pembatas akses per role)
+
+database/
+├── migrations/          # Skema tabel users, categories, reports, report_category, status_histories
+└── seeders/             # DatabaseSeeder, akun demo + kategori + laporan contoh
+
+resources/views/
+├── admin/ petugas/ warga/   # View per role
+├── layouts/                 # Layout utama + navigasi (responsive, ada menu mobile)
+└── components/               # priority-badge, status-badge, dan komponen Blade reusable lain
+
+routes/web.php           # Seluruh route aplikasi, dikelompokkan per role + middleware
+```
